@@ -2,7 +2,7 @@
 
 ls -R /usr/share/kbd/keymaps
 loadkeys es
-setfont ter-120b.psf.gz              (ejemplo)  sun12x22
+setfont ter-120b.psf.gz           (ejemplo de fuente)  sun12x22
 cfdisk /dev/vda      (/dev/vda1 512M  /dev/vda2 20G  /dev/vda3 4.5G) (disco de 25GB)  (ejemplo)
 lsblk
 mkfs.fat -F 32 /dev/vda1
@@ -13,27 +13,27 @@ swapon /dev/vda3
 mount /dev/vda2 /mnt
 mkdir -p /mnt/boot/efi
 mount /dev/vda1 /mnt/boot/efi
-ping artixlinux.org          (conectar al wifi con connmanctl)
+ping artixlinux.org               (conectar al wifi con connmanctl)
 sv up ntpd
 basestrap /mnt base base-devel runit elogind-runit
 basestrap /mnt linux linux-firmware amd-ucode linux-headers
 fstabgen -U /mnt >> /mnt/etc/fstab
 less /mnt/etc/fstab
 artix-chroot /mnt /bin/bash
-cat /etc/fstab          (comprobamos las particiones)
+cat /etc/fstab                    (comprobamos las particiones)
 ln -sf /usr/share/zoneinfo/Europe/Madrid /etc/localtime
 hwclock - - systohc --utc
 pacman -S nano vim
-nano /etc/locale.gen    (desmarcamos es_ES.UTF-8 UTF-8   y además es_ES ISO-8859-1)
+nano /etc/locale.gen              (desmarcamos es_ES.UTF-8 UTF-8   y además es_ES ISO-8859-1)
 locale-gen
 export LANG=”es_ES.UTF-8”
 export LC_COLLATE=C
 nano /etc/locale.conf
-LANG=es_ES.UTF-8        (guardar y salir)
+LANG=es_ES.UTF-8                  (guardar y salir)
 LC_COLLATE=C
 nano /etc/vconsole.conf
 KEYMAP=es
-FONT=sun12x22           (ejemplo)
+FONT=sun12x22                     (ejemplo de fuente)
 pacman -S grub os-prober efibootmgr networkmanager networkmanager-runit network-manager-applet dosfstools bluez bluez-runit bluez-utils cups cups-runit xdg-utils xdg-user-dirs
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=artix_grub
 grub-mkconfig -o /boot/grub/grub.cfg
