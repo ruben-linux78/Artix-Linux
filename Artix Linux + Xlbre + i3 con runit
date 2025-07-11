@@ -3,7 +3,7 @@
 ls -R /usr/share/kbd/keymaps
 loadkeys es
 setfont ter-120b.psf.gz           (ejemplo de fuente)  sun12x22
-cfdisk /dev/vda      (/dev/vda1 512M  /dev/vda2 20G  /dev/vda3 4.5G) (disco de 25GB)  (ejemplo)
+cfdisk /dev/vda                   (/dev/vda1 512M  /dev/vda2 20G  /dev/vda3 4.5G) (disco de 25GB)  (ejemplo para vm)
 lsblk
 mkfs.fat -F 32 /dev/vda1
 fatlabel /dev/vda1 ESP
