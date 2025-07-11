@@ -1,0 +1,109 @@
+# Artix Linux + Xlibre + i3 runit instalación manual:
+
+ls -R /usr/share/kbd/keymaps
+loadkeys es
+setfont ter-120b.psf.gz              (ejemplo)  sun12x22
+cfdisk /dev/vda      (/dev/vda1 512M  /dev/vda2 20G  /dev/vda3 4.5G) (disco de 25GB)  (ejemplo)
+lsblk
+mkfs.fat -F 32 /dev/vda1
+fatlabel /dev/vda1 ESP
+mkfs.ext4 /dev/vda2
+mkswap /dev/vda3
+swapon /dev/vda3
+mount /dev/vda2 /mnt
+mkdir -p /mnt/boot/efi
+mount /dev/vda1 /mnt/boot/efi
+ping artixlinux.org          (conectar al wifi con connmanctl)
+sv up ntpd
+basestrap /mnt base base-devel runit elogind-runit
+basestrap /mnt linux linux-firmware amd-ucode linux-headers
+fstabgen -U /mnt >> /mnt/etc/fstab
+less /mnt/etc/fstab
+artix-chroot /mnt /bin/bash
+cat /etc/fstab          (comprobamos las particiones)
+ln -sf /usr/share/zoneinfo/Europe/Madrid /etc/localtime
+hwclock - - systohc --utc
+pacman -S nano vim
+nano /etc/locale.gen    (desmarcamos es_ES.UTF-8 UTF-8   y además es_ES ISO-8859-1)
+locale-gen
+export LANG=”es_ES.UTF-8”
+export LC_COLLATE=C
+nano /etc/locale.conf
+LANG=es_ES.UTF-8        (guardar y salir)
+LC_COLLATE=C
+nano /etc/vconsole.conf
+KEYMAP=es
+FONT=sun12x22           (ejemplo)
+pacman -S grub os-prober efibootmgr networkmanager networkmanager-runit network-manager-applet dosfstools bluez bluez-runit bluez-utils cups cups-runit xdg-utils xdg-user-dirs
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=artix_grub
+grub-mkconfig -o /boot/grub/grub.cfg
+passwd                            (password para el root)
+nano /etc/sudoers                 (descomentar wheel)
+useradd -mG Wheel,audio,video,storage -s /bin/bash ruben
+passwd ruben
+nano /etc/hostname                (nombre para la maquina artix)   # o bien: echo artix > hostname
+nano /etc/hosts
+127.0.0.1    localhost
+::1                localhost
+127.0.1.1    artix.localdomain  artix
+pacman -S dhcpcd
+cd /etc/runit/sv/
+ls   (vemos los servicios)
+exit
+umount -R /mnt
+reboot
+
+#Iniciamos en nuestra nueva instalación como root y habilitamos servicios instalados:
+
+$ sudo su -
+ln -s /etc/runit/sv/NetworkManager /run/runit/service/NetworManager
+ln -s /etc/runit/sv/bluetoothd /run/runit/service/bluetoothd
+ln -s /etc/runit/sv/cupsd /run/runit/service/cupsd
+ln -s /etc/runit/sv/bluezd /run/runit/service/bluezd
+
+#Instalamos Xlibre:
+
+pacman -S xlibre-xserver xlibre-xserver-{common,devel,xvfb}  xlibre-xf86-video-{amdgpu,vesa,fbdev,ati,dummy} xlibre-xf86-input-{libinput,evdev,vmmouse}
+
+#Instalamos Herramientas de xorg para i3:
+
+pacman -S xorg-{xinit,xmodmap,xrandr,xsetroot,xprp}
+
+#Instalamos i3:
+
+pacman -S i3-wm i3status i3lock dmenu numlockx alacrity ranger firefox octopi fastfetch htop rustup
+nano ~/.xinitrc
+numlockx on &
+setxkbmap es &
+nm-applet &
+exec i3
+reboot
+startx
+
+#Habilitamos soporte para repositorios de Arch Linux:
+
+$ sudo pacman -S artix-archlinux-support
+$ sudo pacman-key --populate archlinux
+$ sudo pacman -S archlinux-mirrorlist
+$ sudo nano /etc/pacman.conf
+    > # ARCHLINUX
+    > [extra]
+    > Include = /etc/pacman.d/mirrorlist-arch
+    > [community]
+    > Include = /etc/pacman.d/mirrorlist-arch
+    > [multilib]
+    > Include = /etc/pacman.d/mirrorlist-arch
+$ sudo pacman -Sy
+
+#Instalamos paru como asistente de aur:
+
+rustup toolchain install stable                (necesitamos rust para instalar paru)
+rustup default stable
+cd /opt
+git clone https://aur.archlinux.org/paru.git
+cd paru
+makepkg -sri
+cd ~
+paru -Syu
+
+
