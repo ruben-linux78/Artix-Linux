@@ -1,4 +1,4 @@
-+++ Artix Linux instalación manual guiada con Sway-dinit +++
++++ Artix Linux instalación manual de sway con dinit +++
 ping artixlinux.org (conectar al wifi con nmtui ó nmcli)
 nmcli device wifi rescan
 nmcli device wifi list
