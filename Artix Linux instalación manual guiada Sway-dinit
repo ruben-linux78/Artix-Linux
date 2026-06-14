@@ -1,1 +1,89 @@
-
+Artix Linux instalación manual guiada Sway-dinit:
+ping artixlinux.org (conectar al wifi con nmtui ó nmcli)
+nmcli device wifi rescan
+nmcli device wifi list
+nmcli device wifi connect ssid-name –ask
+dinitctl enable sshd
+ip addr show dev wlan0
+ssh artix@ip-address-livecd (desde nuestro host)
+— Configuración del disco —
+cfdisk /dev/vda (/dev/vda1 512M /dev/vda2 20G /dev/vda3 4.5G) (disco de 25GB)
+mkfs.vfat -n BOOT -F 32 /dev/vda1
+fatlabel /dev/vda1 ESP
+mkfs.ext4 -L ARTIX /dev/vda2
+mkswap -L SWAP /dev/vda3
+swapon /dev/vda3
+mount /dev/vda2 /mnt
+mkdir -pv /mnt/boot/efi
+mount -t vfat /dev/vda1 /mnt/boot/efi
+— Instalación del sistema & chroot —
+basestrap /mnt base base-devel dinit dinit-rc nano vim
+basestrap /mnt linux linux-headers linux-firmware linux-firmware-amdgpu amd-ucode
+fstabgen -U /mnt >> /mnt/etc/fstab
+artix-chroot /mnt
+nano /etc/fstab (tmpfs /tmp tmpfs rw,nosuid,noatime,nodev,size=2G 0 0)
+ln -sf /usr/share/zoneinfo/Europe/Madrid /etc/localtime
+hwclock --systohc
+nano /etc/locale.gen (desmarcamos es_ES.UTF-8 UTF-8 y además es_ES ISO-8859-1)
+locale-gen
+nano /etc/locale.conf
+LANG=es_ES.UTF-8
+LC_COLLATE=C
+nano /etc/vconsole.conf
+KEYMAP=es
+— Instalación de programas y servicios —
+pacman -S grub os-prober efibootmgr networkmanager networkmanager-dinit network-manager-applet wpa_supplicant wireless_tools net-tools lvm2 dosfstools xorg-xwayland xf86-video-amdgpu
+pacman -s bluez bluez-dinit bluez-utils bluedevil blueman bluez-obex cups cups-dinit seatd seatd-dinit openssh-dinit dhcpcd-dinit xdg-utils xdg-user-dirs-gtk
+pacman -S dbus-dinit-user dinit-user-spawn pipewire pipewire-pulse pipewire-alsa alsa-plugins pipewire-jack wireplumber pavucontrol fastfetch
+— Instalar grub —
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=grub
+grub-mkconfig -o /boot/grub/grub.cfg
+— Configuraciones, servicios de red y reboot —
+passwd (password para el root)
+nano /etc/sudoers (descomentar wheel)
+useradd -mG wheel,audio,video,input,lp,kvm ruben -s /bin/bash
+passwd ruben
+usermod -aG seat ruben (groupadd seat)
+gpasswd -a ruben seat
+nano /etc/hostname (nombre para la maquina artix)
+nano /etc/hosts
+127.0.0.1 localhost
+::1 localhost
+127.0.1.1 artix.localdomain artix
+ls /etc/dinit.d (instalados)
+artix-service enable NetworkManager
+artix-service enable dhcpcd
+exit
+umount -R /mnt
+reboot
+— Entrar al sistema y habilitar resto de servicios —
+sudo su –
+ls /etc/dinit.d
+dinitctl list
+dinitctl enable dbus
+dinitctl enable seatd
+dinitctl enable bluetoothd
+dinitctl enable cupsd
+— Instalación de sway y reboot —
+pacman -S sway swaybg swayidle swaylock xdg-desktop-portal-wlr waybar wofi thunar grim slurp firefox htop btop mako mousepad bat gvfs gvfs-mtp tumbler thunar-volman thunar-archive-plugin thunar-media-tags-plugin wl-clipboard git wget curl bash-completion python foot
+mkdir -p /home/ruben/.config/sway
+cp /etc/sway/config /home/ruben/.config/sway/
+chown -R ruben:ruben /home/ruben/.config
+— Añadir repositorios de Arch Linux —
+sudo pacman -S artix-archlinux-support
+sudo pacman-key --populate archlinux
+sudo pacman -S archlinux-mirrorlist
+sudo nano /etc/pacman.conf
+> # ARCHLINUX
+> [extra]
+> Include = /etc/pacman.d/mirrorlist-arch
+> [multilib]
+> Include = /etc/pacman.d/mirrorlist-arch
+sudo pacman -Sy
+— Instalar yay —
+cd /opt
+git clone https://aur.archlinux.org/yay.git
+cd yay
+makepkg -sri
+cd
+yay
