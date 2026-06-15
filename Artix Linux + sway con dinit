@@ -1,5 +1,7 @@
-+++ Artix Linux instalación manual de sway con dinit +++
-ping artixlinux.org (conectar al wifi con nmtui ó nmcli)
+\* -------- 💫 https://www.youtube.com/@Ruben-Linux 💫 -------- */      
+ \* .... Artix Linux instalación manual de sway con dinit .... */ 
+
+— Conectar al wifi con nmtui ó nmcli —
 nmcli device wifi rescan
 nmcli device wifi list
 nmcli device wifi connect ssid-name –ask
@@ -18,7 +20,7 @@ mkdir -pv /mnt/boot/efi
 mount -t vfat /dev/vda1 /mnt/boot/efi
 — Instalación del sistema & chroot —
 basestrap /mnt base base-devel dinit dinit-rc nano vim
-basestrap /mnt linux linux-headers linux-firmware linux-firmware-amdgpu amd-ucode
+basestrap /mnt linux linux-headers linux-firmware amd-ucode
 fstabgen -U /mnt >> /mnt/etc/fstab
 artix-chroot /mnt
 nano /etc/fstab (tmpfs /tmp tmpfs rw,nosuid,noatime,nodev,size=2G 0 0)
