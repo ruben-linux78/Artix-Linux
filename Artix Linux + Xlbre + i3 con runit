@@ -1,4 +1,5 @@
-# Artix Linux + Xlibre + i3 runit instalación manual:
+\* -------- 💫 https://www.youtube.com/@Ruben-Linux 💫 -------- */      
+ \* ........... Artix Linux + XLibre + i3 con runit .......... */ 
 
 ls -R /usr/share/kbd/keymaps
 loadkeys es
