@@ -36,7 +36,7 @@ KEYMAP=es
 — Instalación de programas y servicios —
 pacman -S grub os-prober efibootmgr networkmanager networkmanager-dinit network-manager-applet wpa_supplicant wireless_tools net-tools lvm2 dosfstools xorg-xwayland xf86-video-amdgpu
 pacman -s bluez bluez-dinit bluez-utils bluedevil blueman bluez-obex cups cups-dinit seatd seatd-dinit openssh-dinit dhcpcd-dinit xdg-utils xdg-user-dirs-gtk
-pacman -S dbus-dinit-user dinit-user-spawn pipewire pipewire-pulse pipewire-alsa alsa-plugins pipewire-jack wireplumber pavucontrol fastfetch
+pacman -S dbus-dinit-user dinit-user-spawn pipewire pipewire-pulse pipewire-alsa alsa-plugins pipewire-jack wireplumber polkit-gnome pavucontrol fastfetch
 — Instalar grub —
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=grub
 grub-mkconfig -o /boot/grub/grub.cfg
